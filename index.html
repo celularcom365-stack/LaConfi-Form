@@ -228,6 +228,15 @@
       </div>
 
       <div class="form-group">
+        <label>🗂️ Tipo de Registro</label>
+        <select id="tipoRegistro" required>
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="Prospección">Prospección</option>
+          <option value="Factura">Factura</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label>📍 Ubicación / Coordenadas <span class="opcional">(opcional)</span></label>
         <div class="ubicacion-row">
           <input type="text" id="ubicacion" placeholder="Lat, Long o dirección de referencia">
@@ -276,6 +285,7 @@
       const direccion  = document.getElementById('direccion').value.trim();
       const mail       = document.getElementById('mail').value.trim();
       const formaPago  = document.getElementById('formaPago').value;
+      const tipoRegistro = document.getElementById('tipoRegistro').value;
       const ubicacion  = document.getElementById('ubicacion').value.trim();
       const fotoInput  = document.getElementById('foto');
       const btnEnviar  = document.getElementById('btnEnviar');
@@ -292,6 +302,7 @@
             direccion: direccion,
             mail: mail,
             formaPago: formaPago,
+            tipoRegistro: tipoRegistro,
             ubicacion: ubicacion,
             fotoBase64: fotoBase64 || "",
             fotoNombre: fotoNombre || ""

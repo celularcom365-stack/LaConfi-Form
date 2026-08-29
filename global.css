@@ -1,0 +1,8 @@
+@font-face {
+    font-family: "Telefonica";
+    src: url("fonts/Telefonica-Regular.otf") format("truetype");
+}
+
+body {
+    font-family: "Telefonica";
+}

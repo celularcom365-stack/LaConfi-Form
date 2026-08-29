@@ -232,7 +232,12 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-enviar">
+      <div class="form-group">
+        <label>📷 Foto <span class="opcional">(opcional)</span></label>
+        <input type="file" id="foto" accept="image/*" capture="environment">
+      </div>
+
+      <button type="submit" class="btn-enviar" id="btnEnviar">
         Enviar Registro
       </button>
 
@@ -269,24 +274,59 @@
       const mail       = document.getElementById('mail').value.trim();
       const formaPago  = document.getElementById('formaPago').value;
       const ubicacion  = document.getElementById('ubicacion').value.trim();
+      const fotoInput  = document.getElementById('foto');
+      const btnEnviar  = document.getElementById('btnEnviar');
 
-      fetch("https://script.google.com/macros/s/AKfycbwLiT839af19JtXyudunB7upyyU1Weti5PbJ3Q1xw_klFWN1odQWfPBLRmyPrr8Fx2nlQ/exec", {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({
-          type: "LA_CONFI",
-          nombre: nombre,
-          ruc: ruc,
-          telefono: telefono,
-          direccion: direccion,
-          mail: mail,
-          formaPago: formaPago,
-          ubicacion: ubicacion
-        })
-      });
+      function enviarDatos(fotoBase64, fotoNombre) {
+        fetch("https://script.google.com/macros/s/AKfycbwLiT839af19JtXyudunB7upyyU1Weti5PbJ3Q1xw_klFWN1odQWfPBLRmyPrr8Fx2nlQ/exec", {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify({
+            type: "LA_CONFI",
+            nombre: nombre,
+            ruc: ruc,
+            telefono: telefono,
+            direccion: direccion,
+            mail: mail,
+            formaPago: formaPago,
+            ubicacion: ubicacion,
+            fotoBase64: fotoBase64 || "",
+            fotoNombre: fotoNombre || ""
+          })
+        });
 
-      document.getElementById('mensajeEstado').style.display = 'block';
-      document.getElementById('miFormulario').reset();
+        document.getElementById('mensajeEstado').style.display = 'block';
+        document.getElementById('miFormulario').reset();
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = "Enviar Registro";
+      }
+
+      btnEnviar.disabled = true;
+
+      if (fotoInput.files && fotoInput.files[0]) {
+        btnEnviar.textContent = "Procesando foto...";
+        const archivo = fotoInput.files[0];
+        const lector = new FileReader();
+
+        lector.onload = function() {
+          // El resultado viene como "data:image/jpeg;base64,XXXXX" — quitamos el prefijo
+          const base64Completo = lector.result;
+          const soloBase64 = base64Completo.split(',')[1];
+          btnEnviar.textContent = "Enviando...";
+          enviarDatos(soloBase64, archivo.name);
+        };
+
+        lector.onerror = function() {
+          alert('No se pudo procesar la foto. Intenta con otra imagen.');
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = "Enviar Registro";
+        };
+
+        lector.readAsDataURL(archivo);
+      } else {
+        btnEnviar.textContent = "Enviando...";
+        enviarDatos(null, null);
+      }
     });
   </script>
 

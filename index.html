@@ -146,6 +146,94 @@
       cursor: pointer;
     }
 
+    /* Menú desplegable de selección múltiple (Tipo de Tienda) */
+    .multiselect {
+      position: relative;
+    }
+
+    .multiselect-header {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e8c9ae;
+      border-radius: 10px;
+      font-size: 15px;
+      color: #3a2a20;
+      background: #fffaf5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .multiselect-header.abierto {
+      border-color: #c9973e;
+      box-shadow: 0 0 0 3px rgba(201, 151, 62, 0.2);
+    }
+
+    .multiselect-header span.placeholder {
+      color: #b39a8a;
+    }
+
+    .multiselect-header .flecha {
+      transition: transform 0.15s;
+      color: #6b2737;
+      font-size: 12px;
+    }
+
+    .multiselect-header.abierto .flecha {
+      transform: rotate(180deg);
+    }
+
+    .multiselect-options {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #e8c9ae;
+      border-radius: 10px;
+      padding: 8px;
+      z-index: 20;
+      box-shadow: 0 8px 20px rgba(107, 39, 55, 0.2);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .multiselect-options.abierto {
+      display: block;
+    }
+
+    .multiselect-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .multiselect-option:hover {
+      background: #fbe4d4;
+    }
+
+    .multiselect-option input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      accent-color: #6b2737;
+    }
+
+    .multiselect-option label {
+      margin: 0;
+      text-transform: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #3a2a20;
+      letter-spacing: normal;
+      cursor: pointer;
+    }
+
     #tipoTiendaOtroWrapper {
       margin-top: 10px;
       display: none;
@@ -299,26 +387,36 @@
 
       <div class="form-group">
         <label>🏪 Tipo de Tienda</label>
-        <div class="checkbox-group">
-          <div class="checkbox-item">
-            <input type="checkbox" id="tienda_detalles" value="Tienda de detalles">
-            <label for="tienda_detalles">Tienda de detalles</label>
+        <div class="multiselect" id="multiselectTienda">
+          <div class="multiselect-header" id="multiselectHeader">
+            <span id="multiselectTexto" class="placeholder">Selecciona una opción</span>
+            <span class="flecha">▼</span>
           </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="tienda_barrio" value="Tienda de barrio">
-            <label for="tienda_barrio">Tienda de barrio</label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="tienda_floristeria" value="Florestería">
-            <label for="tienda_floristeria">Florestería</label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="tienda_mayorista" value="Mayorista">
-            <label for="tienda_mayorista">Mayorista</label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="tienda_otro" value="Otro">
-            <label for="tienda_otro">Otro</label>
+          <div class="multiselect-options" id="multiselectOptions">
+            <div class="multiselect-option">
+              <input type="checkbox" id="tienda_detalles" value="Tienda de detalles">
+              <label for="tienda_detalles">Tienda de detalles</label>
+            </div>
+            <div class="multiselect-option">
+              <input type="checkbox" id="tienda_barrio" value="Tienda de barrio">
+              <label for="tienda_barrio">Tienda de barrio</label>
+            </div>
+            <div class="multiselect-option">
+              <input type="checkbox" id="tienda_conveniencia" value="Tienda de conveniencia">
+              <label for="tienda_conveniencia">Tienda de conveniencia</label>
+            </div>
+            <div class="multiselect-option">
+              <input type="checkbox" id="tienda_floristeria" value="Florestería">
+              <label for="tienda_floristeria">Florestería</label>
+            </div>
+            <div class="multiselect-option">
+              <input type="checkbox" id="tienda_mayorista" value="Mayorista">
+              <label for="tienda_mayorista">Mayorista</label>
+            </div>
+            <div class="multiselect-option">
+              <input type="checkbox" id="tienda_otro" value="Otro">
+              <label for="tienda_otro">Otro</label>
+            </div>
           </div>
         </div>
         <div id="tipoTiendaOtroWrapper">
@@ -389,6 +487,43 @@
       }
     });
 
+    // --- Menú desplegable de selección múltiple (Tipo de Tienda) ---
+    const multiselectHeader = document.getElementById('multiselectHeader');
+    const multiselectOptions = document.getElementById('multiselectOptions');
+    const multiselectTexto = document.getElementById('multiselectTexto');
+    const multiselectWrapper = document.getElementById('multiselectTienda');
+
+    function actualizarTextoMultiselect() {
+      const marcados = Array.from(
+        document.querySelectorAll('#multiselectOptions input[type="checkbox"]:checked')
+      ).map(function(cb) { return cb.value; });
+
+      if (marcados.length === 0) {
+        multiselectTexto.textContent = 'Selecciona una opción';
+        multiselectTexto.classList.add('placeholder');
+      } else {
+        multiselectTexto.textContent = marcados.join(', ');
+        multiselectTexto.classList.remove('placeholder');
+      }
+    }
+
+    multiselectHeader.addEventListener('click', function() {
+      multiselectOptions.classList.toggle('abierto');
+      multiselectHeader.classList.toggle('abierto');
+    });
+
+    document.querySelectorAll('#multiselectOptions input[type="checkbox"]').forEach(function(cb) {
+      cb.addEventListener('change', actualizarTextoMultiselect);
+    });
+
+    // Cierra el desplegable al hacer clic fuera de él
+    document.addEventListener('click', function(e) {
+      if (!multiselectWrapper.contains(e.target)) {
+        multiselectOptions.classList.remove('abierto');
+        multiselectHeader.classList.remove('abierto');
+      }
+    });
+
     // --- Botón para autocompletar coordenadas con la ubicación del navegador ---
     document.getElementById('btnUbicacion').addEventListener('click', function() {
       if (!navigator.geolocation) {
@@ -420,7 +555,7 @@
 
       // Recolectar Tipo de Tienda (checkboxes marcados)
       const tiendasSeleccionadas = [];
-      document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked').forEach(function(cb) {
+      document.querySelectorAll('#multiselectOptions input[type="checkbox"]:checked').forEach(function(cb) {
         if (cb.id === 'tienda_otro') {
           const detalle = textoOtro.value.trim();
           tiendasSeleccionadas.push(detalle ? ('Otro: ' + detalle) : 'Otro');
@@ -454,6 +589,7 @@
         document.getElementById('miFormulario').reset();
         wrapperOtro.style.display = 'none';
         avisoProspeccion.style.display = 'none';
+        actualizarTextoMultiselect();
         btnEnviar.disabled = false;
         btnEnviar.textContent = "Enviar Registro";
       }

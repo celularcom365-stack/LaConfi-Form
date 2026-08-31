@@ -95,6 +95,62 @@
       color: #b39a8a;
     }
 
+    input:disabled {
+      background: #f0e2d3;
+      color: #8a7565;
+      cursor: not-allowed;
+    }
+
+    .aviso-prospeccion {
+      background: #fff3e0;
+      border: 1px solid #c9973e;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #6b2737;
+      margin-bottom: 18px;
+      display: none;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fffaf5;
+      border: 2px solid #e8c9ae;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      accent-color: #6b2737;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      text-transform: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #3a2a20;
+      letter-spacing: normal;
+      cursor: pointer;
+    }
+
+    #tipoTiendaOtroWrapper {
+      margin-top: 10px;
+      display: none;
+    }
+
     .ubicacion-row {
       display: flex;
       gap: 8px;
@@ -189,18 +245,31 @@
     <form id="miFormulario">
 
       <div class="form-group">
+        <label>🗂️ Tipo de Registro</label>
+        <select id="tipoRegistro" required>
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="Prospección">Prospección</option>
+          <option value="Factura">Factura</option>
+        </select>
+      </div>
+
+      <p class="aviso-prospeccion" id="avisoProspeccion">
+        ℹ️ Modo prospección: los campos de contacto se llenaron automáticamente con "N/A" para agilizar el registro. Puedes editarlos si tienes la información real.
+      </p>
+
+      <div class="form-group">
         <label>👤 Nombre</label>
         <input type="text" id="nombre" placeholder="Nombre completo" required>
       </div>
 
       <div class="form-group">
         <label>🪪 RUC / Cédula</label>
-        <input type="text" id="ruc" placeholder="Ej: 1234567890001" pattern="^[0-9]{10}$|^[0-9]{13}$" required>
+        <input type="text" id="ruc" placeholder="Ej: 1234567890001" required>
       </div>
 
       <div class="form-group">
         <label>📱 Teléfono</label>
-        <input type="tel" id="telefono" placeholder="Ej: 0987654321" pattern="^09[0-9]{8}$" maxlength="10" required>
+        <input type="text" id="telefono" placeholder="Ej: 0987654321" required>
       </div>
 
       <div class="form-group">
@@ -210,7 +279,7 @@
 
       <div class="form-group">
         <label>✉️ Mail</label>
-        <input type="email" id="mail" placeholder="correo@ejemplo.com" required>
+        <input type="text" id="mail" placeholder="correo@ejemplo.com" required>
       </div>
 
       <div class="form-group">
@@ -224,16 +293,37 @@
           <option value="Crédito 15 días">Crédito 15 días</option>
           <option value="Crédito 30 días">Crédito 30 días</option>
           <option value="Crédito 45 días">Crédito 45 días</option>
+          <option value="N/A">N/A</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>🗂️ Tipo de Registro</label>
-        <select id="tipoRegistro" required>
-          <option value="" disabled selected>Selecciona una opción</option>
-          <option value="Prospección">Prospección</option>
-          <option value="Factura">Factura</option>
-        </select>
+        <label>🏪 Tipo de Tienda</label>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" id="tienda_detalles" value="Tienda de detalles">
+            <label for="tienda_detalles">Tienda de detalles</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tienda_barrio" value="Tienda de barrio">
+            <label for="tienda_barrio">Tienda de barrio</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tienda_floristeria" value="Florestería">
+            <label for="tienda_floristeria">Florestería</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tienda_mayorista" value="Mayorista">
+            <label for="tienda_mayorista">Mayorista</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tienda_otro" value="Otro">
+            <label for="tienda_otro">Otro</label>
+          </div>
+        </div>
+        <div id="tipoTiendaOtroWrapper">
+          <input type="text" id="tipoTiendaOtroTexto" placeholder="Especifica el tipo de tienda">
+        </div>
       </div>
 
       <div class="form-group">
@@ -261,7 +351,45 @@
   </div>
 
   <script>
-    // Botón para autocompletar coordenadas con la ubicación del navegador
+    // --- Autocompletado al elegir "Prospección" ---
+    const campoRuc = document.getElementById('ruc');
+    const campoTelefono = document.getElementById('telefono');
+    const campoDireccion = document.getElementById('direccion');
+    const campoMail = document.getElementById('mail');
+    const campoFormaPago = document.getElementById('formaPago');
+    const avisoProspeccion = document.getElementById('avisoProspeccion');
+
+    document.getElementById('tipoRegistro').addEventListener('change', function() {
+      if (this.value === 'Prospección') {
+        campoRuc.value = 'N/A';
+        campoTelefono.value = 'N/A';
+        campoDireccion.value = 'N/A';
+        campoMail.value = 'N/A';
+        campoFormaPago.value = 'N/A';
+        avisoProspeccion.style.display = 'block';
+      } else if (this.value === 'Factura') {
+        campoRuc.value = '';
+        campoTelefono.value = '';
+        campoDireccion.value = '';
+        campoMail.value = '';
+        campoFormaPago.value = '';
+        avisoProspeccion.style.display = 'none';
+      }
+    });
+
+    // --- Mostrar campo de texto libre si se marca "Otro" en Tipo de Tienda ---
+    const checkOtro = document.getElementById('tienda_otro');
+    const wrapperOtro = document.getElementById('tipoTiendaOtroWrapper');
+    const textoOtro = document.getElementById('tipoTiendaOtroTexto');
+
+    checkOtro.addEventListener('change', function() {
+      wrapperOtro.style.display = this.checked ? 'block' : 'none';
+      if (!this.checked) {
+        textoOtro.value = '';
+      }
+    });
+
+    // --- Botón para autocompletar coordenadas con la ubicación del navegador ---
     document.getElementById('btnUbicacion').addEventListener('click', function() {
       if (!navigator.geolocation) {
         alert('Tu navegador no soporta geolocalización.');
@@ -279,16 +407,28 @@
     document.getElementById('miFormulario').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const nombre     = document.getElementById('nombre').value.trim();
-      const ruc        = document.getElementById('ruc').value.trim();
-      const telefono   = document.getElementById('telefono').value.trim();
-      const direccion  = document.getElementById('direccion').value.trim();
-      const mail       = document.getElementById('mail').value.trim();
-      const formaPago  = document.getElementById('formaPago').value;
       const tipoRegistro = document.getElementById('tipoRegistro').value;
+      const nombre     = document.getElementById('nombre').value.trim();
+      const ruc        = campoRuc.value.trim();
+      const telefono   = campoTelefono.value.trim();
+      const direccion  = campoDireccion.value.trim();
+      const mail       = campoMail.value.trim();
+      const formaPago  = campoFormaPago.value;
       const ubicacion  = document.getElementById('ubicacion').value.trim();
       const fotoInput  = document.getElementById('foto');
       const btnEnviar  = document.getElementById('btnEnviar');
+
+      // Recolectar Tipo de Tienda (checkboxes marcados)
+      const tiendasSeleccionadas = [];
+      document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked').forEach(function(cb) {
+        if (cb.id === 'tienda_otro') {
+          const detalle = textoOtro.value.trim();
+          tiendasSeleccionadas.push(detalle ? ('Otro: ' + detalle) : 'Otro');
+        } else {
+          tiendasSeleccionadas.push(cb.value);
+        }
+      });
+      const tipoTienda = tiendasSeleccionadas.join(', ');
 
       function enviarDatos(fotoBase64, fotoNombre) {
         fetch("https://script.google.com/macros/s/AKfycbwLiT839af19JtXyudunB7upyyU1Weti5PbJ3Q1xw_klFWN1odQWfPBLRmyPrr8Fx2nlQ/exec", {
@@ -296,13 +436,14 @@
           mode: "no-cors",
           body: JSON.stringify({
             type: "LA_CONFI",
+            tipoRegistro: tipoRegistro,
             nombre: nombre,
             ruc: ruc,
             telefono: telefono,
             direccion: direccion,
             mail: mail,
             formaPago: formaPago,
-            tipoRegistro: tipoRegistro,
+            tipoTienda: tipoTienda,
             ubicacion: ubicacion,
             fotoBase64: fotoBase64 || "",
             fotoNombre: fotoNombre || ""
@@ -311,6 +452,8 @@
 
         document.getElementById('mensajeEstado').style.display = 'block';
         document.getElementById('miFormulario').reset();
+        wrapperOtro.style.display = 'none';
+        avisoProspeccion.style.display = 'none';
         btnEnviar.disabled = false;
         btnEnviar.textContent = "Enviar Registro";
       }
@@ -323,7 +466,6 @@
         const lector = new FileReader();
 
         lector.onload = function() {
-          // El resultado viene como "data:image/jpeg;base64,XXXXX" — quitamos el prefijo
           const base64Completo = lector.result;
           const soloBase64 = base64Completo.split(',')[1];
           btnEnviar.textContent = "Enviando...";

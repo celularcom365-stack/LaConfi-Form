@@ -425,6 +425,15 @@
       </div>
 
       <div class="form-group">
+        <label>🤝 Gestión de Cliente</label>
+        <select id="gestionCliente" required>
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="Interesado">Interesado</option>
+          <option value="No Interesado">No Interesado</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label>📍 Ubicación / Coordenadas <span class="opcional">(opcional)</span></label>
         <div class="ubicacion-row">
           <input type="text" id="ubicacion" placeholder="Lat, Long o dirección de referencia">
@@ -564,6 +573,7 @@
         }
       });
       const tipoTienda = tiendasSeleccionadas.join(', ');
+      const gestionCliente = document.getElementById('gestionCliente').value;
 
       function enviarDatos(fotoBase64, fotoNombre) {
         fetch("https://script.google.com/macros/s/AKfycbwLiT839af19JtXyudunB7upyyU1Weti5PbJ3Q1xw_klFWN1odQWfPBLRmyPrr8Fx2nlQ/exec", {
@@ -579,6 +589,7 @@
             mail: mail,
             formaPago: formaPago,
             tipoTienda: tipoTienda,
+            gestionCliente: gestionCliente,
             ubicacion: ubicacion,
             fotoBase64: fotoBase64 || "",
             fotoNombre: fotoNombre || ""
